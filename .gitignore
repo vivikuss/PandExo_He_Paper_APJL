@@ -1,6 +1,24 @@
+
+# python
 __pycache__/
-*.pyc
-.venv/
+*.py[cod]
+.ipynb_checkpoints/
+
+# environments
 venv/
+venv_*/
+.venv/
+
+# big reference data (don’t commit)
+pandeia_data*/
+grp/redcat/trds/
+
+# outputs
+pandexo_results_*/
+pandexoplot_*.png
+*.png
+*.txt
+*.p
+
+# mac
 .DS_Store
-path/to/venv

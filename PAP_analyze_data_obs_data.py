@@ -1,4 +1,12 @@
+
 import numpy as np
+
+# Monkey-patch: add 'bool' to numpy if missing
+if not hasattr(np, 'bool8'):
+    np.bool8 = bool
+
+import re
+from pathlib import Path
 import matplotlib.pyplot as plt
 import pandexo.engine.justplotit as jpi
 import pickle
@@ -6,18 +14,47 @@ from matplotlib import ticker
 
 ### ADJUST THIS PART ###
 # Paths
-#pic = '/Users/new/Desktop/THESIS/THESIS_picaso-master'
-pic = f"/Users/new/iCloud_Drive_Archive_3/Desktop/Desktop_Vivianes_MacBook_Pro/THESIS/THESIS_picaso-master"
+user = f"/Users/new/Desktop/"     #### CUSTOMIZE ####
+pic = user + 'THESIS_picaso-master-main'
 
 ### K2-18b
 #input_pandexo = ['pandexo_k218b_spectrum1.txt','pandexo_k218b_spectrum2.txt','pandexo_k218b_spectrum3.txt']
 #input_picaso = [pic + '/spectrum_k218b_case1.txt',pic + '/spectrum_k218b_case2.txt', pic + '/spectrum_k218b_case3.txt']  
 #title = 'pandexoplot_combined_k218b_he.png' # 'pandexoplot_combined_k218b_he_h2.png'
 
-### LHS 1140b
-input_pandexo = ['pandexo_lhs_spectrum3.txt','pandexo_lhs_spectrum2.txt','pandexo_lhs_spectrum1.txt']
-input_picaso = [pic + '/spectrum_lhs_case3.txt',pic + '/spectrum_lhs_case2.txt', pic + '/spectrum_lhs_case1.txt']  
-title = 'pandexoplot_combined_lhs_h2_n2_he.png' #'pandexoplot_combined_lhs_he_h2.png' # 'pandexoplot_combined_lhs_he.png' #
+### LHS 1140 b
+input_pandexo = ['pandexo_lhs_spectrum_new3.txt','pandexo_lhs_spectrum_new1.txt','pandexo_lhs_spectrum_new2.txt']
+input_picaso = [pic + '/spectrum_lhs_case_new3.txt',pic + '/spectrum_lhs_case_new1.txt', pic + '/spectrum_lhs_case_new2.txt']  
+title = 'pandexoplot_combined_lhs_h2_he_n2_lime_NEW.png' #'pandexoplot_combined_lhs_he_h2.png' # 'pandexoplot_combined_lhs_he.png' #
+
+# Read raw RTF text
+rtf_path = Path("Damiano_JWST.rtf") 
+text = rtf_path.read_text(errors="ignore")
+
+# wavelength_start-wavelength_end   ppm   error
+row_pattern = re.compile(r"(\d+\.\d+)\s*-\s*(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)")
+mu, ppm, err = [], [], []
+
+for match in row_pattern.finditer(text):
+    w_lo, w_hi, val, sigma = map(float, match.groups())
+    mu.append(0.5 * (w_lo + w_hi))  # bin center
+    ppm.append(val)
+    err.append(sigma)
+
+mu = np.array(mu)
+ppm = np.array(ppm)*1e-6
+err = np.array(err)*1e-6
+
+sorted_indices = np.argsort(mu)
+mu = mu[sorted_indices]
+ppm = ppm[sorted_indices]
+err = err[sorted_indices]
+
+print(f"Damiano data imported")
+
+### radii ###                               # Damiano et al 2024
+Rp = 0.1543                         # Rjup
+Rstar = 2.101 #2.0435                          # Rjup
 
 #labels = ['97.4% He, 0.8% CO2','47.4% He, 50.8% CO2','5% He, 95% CO2', '97.4% H2, 0.8% CO2']
 only_he = False         # Plot 97.4% He vs 47.4% He if True, plot 97.4% He vs 97.4% H2 if False
@@ -103,10 +140,10 @@ if(not plot_all):
     plt.show()
 
 if(plot_all):
-    labels = [r'H$_2$', r'N$_2$', r'He']
+    labels = [r'H$_2$', r"He", r'N$_2$']
     #data_colors = ['darkred', 'darkslategrey', 'olive']
-    data_colors = ['coral','deepskyblue','darkviolet']
-    recon_colors = ['tomato', 'dodgerblue', 'indigo']
+    data_colors = ['coral','darkviolet','dodgerblue']
+    recon_colors = ['tomato', 'indigo', 'dodgerblue']
     fig, (ax1, ax2) = plt.subplots(2,1, figsize=(12, 8), sharey = True, sharex = True)
     for j, (pan, pica, lab, dat_colo, recon_colo) in enumerate(zip(input_pandexo,input_picaso,labels,data_colors,recon_colors)):
     
@@ -134,7 +171,7 @@ if(plot_all):
         ax1.grid(True)
         ax2.grid(True)
         ax2.set_xlim([0.6, 5.0])
-        ax2.set_ylim([0.53e-2, 0.63e-2])
+        ax2.set_ylim([0.505e-2, 0.605e-2])
 
     ax1.set_title(r'Full Spectrum (PICASO)')
     ax2.set_title(r'Reconstructed Spectra (thick line) from simulated Data Points')
@@ -143,10 +180,19 @@ if(plot_all):
     ax1.set_ylabel(r'Transit Depth $R_p^2/R_*^2$',fontsize=13)
     ax2.set_ylabel(r'Transit Depth $R_p^2/R_*^2$',fontsize=13)
 
+    #overplot Damiano data
+    pandexo_min = np.min(pandexo_spec_fin)
+    ppm_min = np.min(ppm)
+    flat_spectrum = Rp**2/Rstar**2
+    ppm += flat_spectrum - ppm_min
+
+    #ax2.plot(mu, ppm, color="black", linewidth=2.0)
+    ax2.errorbar(mu, ppm, yerr=err, fmt = ".", ecolor="black", linewidth=3.0, capsize=2.5)
+    ax2.errorbar(mu, ppm, yerr=err, fmt = "D", color="lime", markersize=4.5, markeredgecolor = "black", linewidth=1.5, label="Observation")
+
     ax1.legend(loc='best')
     ax2.legend(loc='upper left')
 
     fig.tight_layout()
-    #plt.savefig(title, dpi=500)
+    plt.savefig(title, dpi=500)
     plt.show()
-

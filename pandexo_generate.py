@@ -9,14 +9,14 @@ import matplotlib.pyplot as plt
 
 ### ADJUST THIS PART ###
 # Paths
-os.environ['pandeia_refdata'] = '/Users/new/Desktop/THESIS/THESIS_PandExo-master/pandeia_data-4.1-jwst' 
-os.environ['PYSYN_CDBS'] = '/Users/new/Desktop/THESIS/THESIS_PandExo-master/grp/redcat/trds' 
-os.environ['EXOCTK_DATA'] = '/Users/new/Desktop/THESIS/THESIS_PandExo-master/path/to/venv/lib/python3.12/site-packages/exoctk/data'
-pic = '/Users/new/Desktop/THESIS/THESIS_picaso-master'
+#os.environ['pandeia_refdata'] = '/Users/new/Dropbox/APJL_paper_26/THESIS_PandExo-master/pandeia_data-4.1-jwst' 
+os.environ['PYSYN_CDBS'] = '/Users/new/Dropbox/APJL_paper_26/THESIS_PandExo-master/grp/redcat/trds' 
+os.environ['EXOCTK_DATA'] = '/Users/new/Dropbox/APJL_paper_26/THESIS_PandExo-master/path/to/venv/lib/python3.12/site-packages/exoctk/data'
+pic = '/Users/new/Desktop/Thesis_picaso-master-main'
 # input_paths = [pic + '/spectrum_k218b_case1',pic + '/spectrum_k218b_case2', pic + '/spectrum_k218b_case3']  
 # output_paths = ['pandexo_k218b_spectrum1.txt','pandexo_k218b_spectrum2.txt','pandexo_k218b_spectrum3.txt']
-input_paths = [pic + '/spectrum_lhs_case1',pic + '/spectrum_lhs_case2', pic + '/spectrum_lhs_case3']  
-output_paths = ['pandexo_lhs_spectrum1.txt','pandexo_lhs_spectrum2.txt','pandexo_lhs_spectrum3.txt']
+input_paths = [pic + '/spectrum_lhs_case_new1',pic + '/spectrum_lhs_case_new2', pic + '/spectrum_lhs_case_new3']  
+output_paths = ['pandexo_lhs_spectrum_new1.txt','pandexo_lhs_spectrum_new2.txt','pandexo_lhs_spectrum_new3.txt']
 ####
 ### also set all three using: export pandeia_refdata="path", echo 'export pandeia_refdata="path"' >>~/.bash_profile
 ### check using: python -c "import pandeia.engine; pandeia.engine.pandeia_version()"
@@ -49,7 +49,7 @@ ps = 20
 tstel = 3500             # K               #### NASA Archive
 met = -0.15            # dex           #### NASA Archive
 g = 5.0               # log g value       #### NASA Archive
-rstel = 0.21              # Rsun              #### NASA Archive
+rstel = 0.2159              # Rsun              #### NASA Archive
 mag = 9.612                             #### NASA Archive
 
 ####################################################
@@ -87,7 +87,16 @@ exo_dict['planet']['f_unit'] = 'rp^2/r*^2'
 
 # instrument settings
 inst_dict = jdi.load_mode_dict('NIRSpec PRISM')       # using NIRSpec PRISM
-inst_dict["configuration"]["detector"]["ngroup"] = 2     #running "optimize" will select the max, possible groups before sat, integer between 2-65536
+
+# print(inst_dict["configuration"].keys())
+# print("detector keys:", inst_dict["configuration"]["detector"].keys())
+# print("instrument:", inst_dict["configuration"]["instrument"])
+# print("detector:", inst_dict["configuration"]["detector"])
+# exit()
+# inst_dict["configuration"]["detector"]["readout_pattern"] = "nrsrapid"
+# inst_dict["configuration"]["detector"]["readmode"] = "nrsrapid"
+# inst_dict["configuration"]["detector"]["subarray"] = "sub512"
+inst_dict["configuration"]["detector"]["ngroup"] = 2    #running "optimize" will select the max, possible groups before sat, integer between 2-65536
 inst_dict["configuration"]["detector"]["nint"] = 2000
 inst_dict['background'] = 'ecliptic'                            # options: ecliptic or minzodi
 inst_dict['background_level'] = 'medium'                       # options: low, medium, high
@@ -97,8 +106,19 @@ for k,(in_path, out_path) in enumerate(zip(input_paths,output_paths)):
 
     # generate spectra
     exo_dict['planet']['exopath'] = in_path + '.txt'
+
+    # import json, copy
+    # tmp = copy.deepcopy(inst_dict)
+    # # pandexo wraps pandeia input; depending on your code, inst_dict might already be the "pandeia_input"
+    # print("instrument:", tmp.get("instrument", tmp.get("configuration",{}).get("instrument")))
+    # print("mode:", tmp.get("mode", tmp.get("configuration",{}).get("mode")))
+    # print("exposure keys:", tmp.get("exposure", tmp.get("configuration",{}).get("exposure", {})))
+    # print("subarray keys:", tmp.get("subarray", tmp.get("configuration",{}).get("subarray", {})))
+
+
     results = jdi.run_pandexo(exo_dict, inst_dict, save_file=True)
     filename = 'pandexo_results_'+str(out_path)+'_'+str(exo_dict['observation']['noccultations'])+'transits_'
+    print("Generating Output File")
     outfile = open(filename, 'wb')
     pickle.dump(results, outfile)
     outfile.close()
