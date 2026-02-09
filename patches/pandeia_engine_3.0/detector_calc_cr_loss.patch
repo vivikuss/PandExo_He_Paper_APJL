@@ -1,0 +1,23 @@
+diff --git a/patches/pandeia_engine_3.0/detector_orig.py b/patches/pandeia_engine_3.0/detector_patched.py
+index 920da0d..3338bea 100644
+--- a/patches/pandeia_engine_3.0/detector_orig.py
++++ b/patches/pandeia_engine_3.0/detector_patched.py
+@@ -531,6 +531,10 @@ class Detector_MultiAccum(Detector):
+             This is the input ngroups scaled by the mean loss of time due to cosmic ray events.
+         """
+ 
++        if ngroups <= 1.0:
++            return ngroups
++
++
+         # this is the average fraction of the ramp that is lost upon a CR event
+         if ngroups < self.mingroups:
+             # if for some reason (e.g. using single read noise model) ngroup is less than the minimum needed
+@@ -543,7 +547,6 @@ class Detector_MultiAccum(Detector):
+             # distributed.
+             ramp_frac = 1.0 - 0.5 * (ngroups - self.mingroups) / (ngroups - 1.0)
+ 
+-
+         # the effective ramp exposure/measurement time, t_eff, is t_tot * (1 - ramp_frac * pix_cr_rate * t_ramp). We use the saturation
+         # time as an approximation of the time during which a ramp can get damaged by a CR. This was previously more complex to
+         # handle the case where a ramp is both saturated and hit by a CR, but that required a recalculation of the exposure time for
