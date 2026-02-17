@@ -180,12 +180,6 @@ if(plot_all):
     ax1.set_ylabel(r'Transit Depth $R_p^2/R_*^2$',fontsize=13)
     ax2.set_ylabel(r'Transit Depth $R_p^2/R_*^2$',fontsize=13)
 
-    #overplot Damiano data
-    pandexo_min = np.min(pandexo_spec_fin)
-    ppm_min = np.min(ppm)
-    flat_spectrum = Rp**2/Rstar**2
-    ppm += flat_spectrum - ppm_min
-
     #ax2.plot(mu, ppm, color="black", linewidth=2.0)
     ax2.errorbar(mu, ppm, yerr=err, fmt = ".", ecolor="black", linewidth=3.0, capsize=2.5)
     ax2.errorbar(mu, ppm, yerr=err, fmt = "D", color="lime", markersize=4.5, markeredgecolor = "black", linewidth=1.5, label="Observation")
