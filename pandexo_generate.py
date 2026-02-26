@@ -28,29 +28,29 @@ print("pandeia refdata:", os.environ.get("pandeia_refdata"))
 ### CUSTOMIZE IF NEEDED ###
 ### K2-18b ###
 # # Planet's Properties
-# mpla = 0.0272           # Mjup ##### NASA Archive Benneke 2019
-# rpla = 0.2328           # Rjup ##### NASA Archive Benneke 2019
+# mpla = 0.0272           # Mjup ##### Benneke 2019
+# rpla = 0.2328           # Rjup ##### Benneke 2019
 # ps = 20
 
 # # Star's Properties
-# tstel = 3500            # K               #### NASA Archive
-# met = 0.123             # dex           #### NASA Archive
-# g = 4.858               # log g value       #### NASA Archive
-# rstel = 0.44            # Rsun              #### NASA Archive
+# tstel = 3500            # K               
+# met = 0.123             # dex          
+# g = 4.858               # log g value       
+# rstel = 0.4445            # Rsun             
 # mag = 8.899
 
 ### LHS 1140b ###
-# Planet's Properties
-mpla = 0.0176           # Mjup ##### Wunderlich 2020/Cherubim 2025
-rpla = 0.1543            # Rjup ##### Wunderlich 2020/Cherubim 2025
+# Planet's Properties ##### Data from Damiano et al. (2024)
+mpla = 0.0176           # Mjup 
+rpla = 0.1543            # Rjup 
 ps = 20
 
 # Star's Properties
-tstel = 3500             # K               #### NASA Archive
-met = -0.15            # dex           #### NASA Archive
-g = 5.0               # log g value       #### NASA Archive
-rstel = 0.2159              # Rsun              #### NASA Archive
-mag = 9.612                             #### NASA Archive
+tstel = 3500             # K               
+met = -0.15            # dex          
+g = 5.0               # log g value       
+rstel = 0.2159              # Rsun             
+mag = 9.612                            
 
 ####################################################
 
